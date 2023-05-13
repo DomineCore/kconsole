@@ -1,5 +1,5 @@
 # kconsole
-kconsole 是一个用于快速进入 Kubernetes 集群容器终端的命令行工具。它使用 kubectl 命令行工具来获取 Kubernetes 集群中的 Pod 和容器信息，并使用 exec 命令进入容器终端。
+kconsole 是一个用于快速进入 Kubernetes 集群容器终端的命令行工具。它使用 client-go 来获取 Kubernetes 集群中的 Pod 和容器信息，并使用 exec 命令进入容器终端。
 
 ## 使用
 要使用 kconsole 进入 Kubernetes 集群中的容器终端，请按照以下步骤操作：
