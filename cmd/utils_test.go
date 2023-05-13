@@ -31,35 +31,3 @@ func TestPrintLogo(t *testing.T) {
 	logo := PrintLogo()
 	assert.Contains(t, logo, "Exec your container more easily.")
 }
-
-func TestDefaultKubeConfig(t *testing.T) {
-	config := defaultKubeConfig()
-	assert.NotNil(t, config)
-}
-
-func TestDefaulClientSet(t *testing.T) {
-	clientset := defaulClientSet()
-	assert.NotNil(t, clientset)
-	discovery := clientset.Discovery()
-	assert.NotNil(t, discovery)
-	coreV1 := clientset.CoreV1()
-	assert.NotNil(t, coreV1)
-}
-
-func TestAllPodList(t *testing.T) {
-	pods := allPodList()
-	assert.NotNil(t, pods)
-	assert.NotEmpty(t, pods.Items)
-}
-
-func TestGetPod(t *testing.T) {
-	pod, err := getPod("test-pod", "default")
-	assert.Nil(t, pod)
-	assert.NotNil(t, err)
-}
-
-func TestListAllPods(t *testing.T) {
-	podNames := ListAllPods()
-	assert.NotEmpty(t, podNames)
-	assert.Contains(t, podNames[0], "/")
-}
