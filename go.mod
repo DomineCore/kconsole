@@ -6,6 +6,7 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/pingcap/errors v0.11.4
 	github.com/pterm/pterm v0.12.60
+	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.1
 	k8s.io/api v0.27.1

@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"kconsole/utils/errorx"
 	"net/http"
 	"os"
 	"path"
@@ -75,43 +76,37 @@ func PrintLogo() string {
 
 func defaultKubeConfig() *rest.Config {
 	home, err := os.UserHomeDir()
-	if err != nil {
-		panic(err.Error())
-	}
+	errorx.CheckError(err)
 
 	// 构建kubeconfig文件路径
 	kubeconfig := filepath.Join(home, ".kube", "config")
 
 	// 加载kubeconfig文件
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		panic(err.Error())
-	}
+	errorx.CheckError(err)
+
 	return config
 }
 
 func defaulClientSet() *kubernetes.Clientset {
 	config := defaultKubeConfig()
 	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
+	errorx.CheckError(err)
+
 	return clientset
 }
 
 func allPodList() *v1.PodList {
 	pods, err := defaulClientSet().CoreV1().Pods("").List(context.Background(), metav1.ListOptions{})
-	if err != nil {
-		panic(err.Error())
-	}
+	errorx.CheckError(err)
+
 	return pods
 }
 
 func getPod(podname string, namespace string) (*v1.Pod, error) {
 	pod, err := defaulClientSet().CoreV1().Pods(namespace).Get(context.Background(), podname, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
+	errorx.CheckError(err)
+
 	return pod, nil
 }
 
@@ -126,9 +121,8 @@ func ListAllPods() []string {
 
 func ListContainersByPod(namespace string, podname string) (containers []string) {
 	pod, err := getPod(podname, namespace)
-	if err != nil {
-		panic(err.Error())
-	}
+	errorx.CheckError(err)
+
 	for _, container := range pod.Spec.Containers {
 		containers = append(containers, container.Name)
 	}
@@ -153,9 +147,8 @@ func SelectUI(data []string, title string) string {
 	}
 
 	_, result, err := prompt.Run()
-	if err != nil {
-		panic(err.Error())
-	}
+	errorx.CheckErrorWithCode(err, errorx.ErrorSelectExit)
+
 	return result
 }
 
@@ -206,9 +199,8 @@ func ExecPodContainer(namespace string, pod string, container string, command st
 
 	// 创建执行器
 	executor, err := remotecommand.NewSPDYExecutor(defaultKubeConfig(), http.MethodPost, req.URL())
-	if err != nil {
-		return err
-	}
+	errorx.CheckError(err)
+
 	err = executor.StreamWithContext(context.Background(), remotecommand.StreamOptions{
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
