@@ -22,43 +22,27 @@
 package cmd
 
 import (
-	"strings"
+	"testing"
 
-	"github.com/spf13/cobra"
+	"github.com/stretchr/testify/assert"
 )
 
-var CMDS = []string{"sh", "bash"}
+func TestConsoleCmd_Init(t *testing.T) {
+	// Create a mock BaseCommand
+	baseCmd := &BaseCommand{}
 
-type ClusterCmd struct {
-	BaseCommand
-}
-
-func (cl *ClusterCmd) Init() {
-	cl.command = &cobra.Command{
-		Use:   "cluster",
-		Short: "Exec a command for a container incluster.",
-		Long:  "Exec a command for a container incluster.",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return cl.runCluster(cmd, args)
-		},
+	// Create a ConsoleCmd with the mock BaseCommand
+	ConsoleCmd := &ConsoleCmd{
+		BaseCommand: *baseCmd,
 	}
-	cl.command.DisableFlagsInUseLine = true
-}
 
-func (cl ClusterCmd) runCluster(cmd *cobra.Command, args []string) error {
-	// call utils get pods
-	pods := ListAllPods()
-	selectpod := SelectUI(pods, "select a pod")
-	// pod: namespace/podname
-	namespace_pod := strings.Split(selectpod, "/")
-	namespace := namespace_pod[0]
-	podname := namespace_pod[1]
-	// call utils get container
-	containers := ListContainersByPod(namespace, podname)
-	selectcontainer := SelectUI(containers, "select a container")
-	// select command
-	selectcmd := SelectUI(CMDS, "select a cmd")
-	// build exec real command
-	err := ExecPodContainer(namespace, podname, selectcontainer, selectcmd)
-	return err
+	// Call Init on the ConsoleCmd
+	ConsoleCmd.Init()
+
+	// Check that the ConsoleCmd's command has the expected Use, Short, and Long fields
+	assert.Equal(t, "cluster", ConsoleCmd.command.Use)
+	assert.Equal(t, "Exec a command for a container incluster.", ConsoleCmd.command.Short)
+	assert.Equal(t, "Exec a command for a container incluster.", ConsoleCmd.command.Long)
+	assert.True(t, ConsoleCmd.command.DisableFlagsInUseLine)
+	assert.NotNil(t, ConsoleCmd.command.RunE)
 }

@@ -52,7 +52,7 @@ func NewBaseCommand() *BaseCommand {
 	baseCmd := &BaseCommand{
 		command: cli.rootCmd,
 	}
-	baseCmd.AddCommands(&ClusterCmd{})
+	baseCmd.AddCommands(&ConsoleCmd{})
 	baseCmd.AddCommands(&DownloadCmd{})
 	baseCmd.AddCommands(&UploadCmd{})
 	return baseCmd
