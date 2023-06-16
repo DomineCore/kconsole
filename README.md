@@ -1,8 +1,9 @@
 # kconsole
-kconsole 是一个用于快速进入 Kubernetes 集群容器终端的命令行工具。它使用 client-go 来获取 Kubernetes 集群中的 Pod 和容器信息，并使用 exec 命令进入容器终端。
+
+kconsole 是一个用于与提高 Kubernetes 集群容器交互效率的命令行工具。它使用client-go 来与 Kubernetes 集群交互，提供快速进入容器终端、下载容器文件、上传本地文件到容器等便捷功能。
 
 ## 使用
-要使用 kconsole 进入 Kubernetes 集群中的容器终端，请按照以下步骤操作：
+以 console 子命令为例，要使用 kconsole 进入 Kubernetes 集群中的容器终端，请按照以下步骤操作：
 
 ### 1 下载 kconsole 可执行文件。
 您可以从 GitHub Releases 页面 下载最新版本的 kconsole。
@@ -20,7 +21,7 @@ export PATH=$PATH:/usr/local/bin
 在命令行中运行以下命令：
 
 ```
-kconsole cluster
+kconsole console
 ```
 这将显示一个交互式菜单，列出了 Kubernetes 集群中的所有 Pod以及它们所在的namespace。
 
@@ -36,6 +37,13 @@ kconsole cluster
 kconsole 支持以下选项：
 
 -h, --help: 显示帮助信息。
+
+## 子命令
+kconsole 提供以下子命令:
+
+console: 进入集群中的容器终端
+download: 下载集群中的容器内文件
+upload: 上传本地文件到集群中的容器
 
 ## 开发
 如果您想要为 kconsole 做出贡献，或者想要构建自己的版本，请按照以下步骤操作：

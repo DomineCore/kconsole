@@ -22,27 +22,43 @@
 package cmd
 
 import (
-	"testing"
+	"strings"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/spf13/cobra"
 )
 
-func TestClusterCmd_Init(t *testing.T) {
-	// Create a mock BaseCommand
-	baseCmd := &BaseCommand{}
+var CMDS = []string{"sh", "bash"}
 
-	// Create a ClusterCmd with the mock BaseCommand
-	clusterCmd := &ClusterCmd{
-		BaseCommand: *baseCmd,
+type ConsoleCmd struct {
+	BaseCommand
+}
+
+func (cl *ConsoleCmd) Init() {
+	cl.command = &cobra.Command{
+		Use:   "console",
+		Short: "Exec a command for a container incluster.",
+		Long:  "Exec a command for a container incluster.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cl.runConsole(cmd, args)
+		},
 	}
+	cl.command.DisableFlagsInUseLine = true
+}
 
-	// Call Init on the ClusterCmd
-	clusterCmd.Init()
-
-	// Check that the ClusterCmd's command has the expected Use, Short, and Long fields
-	assert.Equal(t, "cluster", clusterCmd.command.Use)
-	assert.Equal(t, "Exec a command for a container incluster.", clusterCmd.command.Short)
-	assert.Equal(t, "Exec a command for a container incluster.", clusterCmd.command.Long)
-	assert.True(t, clusterCmd.command.DisableFlagsInUseLine)
-	assert.NotNil(t, clusterCmd.command.RunE)
+func (cl ConsoleCmd) runConsole(cmd *cobra.Command, args []string) error {
+	// call utils get pods
+	pods := ListAllPods()
+	selectpod := SelectUI(pods, "select a pod")
+	// pod: namespace/podname
+	namespace_pod := strings.Split(selectpod, "/")
+	namespace := namespace_pod[0]
+	podname := namespace_pod[1]
+	// call utils get container
+	containers := ListContainersByPod(namespace, podname)
+	selectcontainer := SelectUI(containers, "select a container")
+	// select command
+	selectcmd := SelectUI(CMDS, "select a cmd")
+	// build exec real command
+	err := ExecPodContainer(namespace, podname, selectcontainer, selectcmd)
+	return err
 }
