@@ -26,7 +26,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -398,7 +397,6 @@ func unTarAll(reader io.Reader, destDir, prefix string) error {
 }
 
 func makeTar(srcPath, destPath string, writer io.Writer) error {
-	// TODO: use compression here?
 	tarWriter := tar.NewWriter(writer)
 	defer tarWriter.Close()
 
@@ -419,7 +417,7 @@ func recursiveTar(srcBase, srcFile, destBase, destFile string, tw *tar.Writer) e
 			return err
 		}
 		if stat.IsDir() {
-			files, err := ioutil.ReadDir(fpath)
+			files, err := os.ReadDir(fpath)
 			if err != nil {
 				return err
 			}
