@@ -40,7 +40,7 @@ func TestConsoleCmd_Init(t *testing.T) {
 	ConsoleCmd.Init()
 
 	// Check that the ConsoleCmd's command has the expected Use, Short, and Long fields
-	assert.Equal(t, "cluster", ConsoleCmd.command.Use)
+	assert.Equal(t, "console", ConsoleCmd.command.Use)
 	assert.Equal(t, "Exec a command for a container incluster.", ConsoleCmd.command.Short)
 	assert.Equal(t, "Exec a command for a container incluster.", ConsoleCmd.command.Long)
 	assert.True(t, ConsoleCmd.command.DisableFlagsInUseLine)
