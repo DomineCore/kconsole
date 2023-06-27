@@ -32,6 +32,12 @@ import (
 const (
 	// ErrorSelectExit The selector is closed
 	ErrorSelectExit = 0
+	// ErrorSelectExit
+	ErrorConfigErr = 1
+	// ErrorAuthConfigErr
+	ErrorAuthConfigErr = 2
+	// ErrorBCSAuthConfigErr bcs auth config error
+	ErrorBCSAuthConfigErr = 3
 	// ErrorUnknow Unexpected error, need to contact the developer
 	ErrorUnknow = 20
 )
