@@ -38,6 +38,10 @@ const (
 	ErrorAuthConfigErr = 2
 	// ErrorBCSAuthConfigErr bcs auth config error
 	ErrorBCSAuthConfigErr = 3
+	// ErrorGetBCSUserProjErr get bcs project unknown error
+	ErrorGetBCSUserProjErr = 4
+	// ErrorGetBCSUserProj get bcs cluster proj unknown error
+	ErrorGetBCSUserClusterErr = 5
 	// ErrorUnknow Unexpected error, need to contact the developer
 	ErrorUnknow = 20
 )

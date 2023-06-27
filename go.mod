@@ -3,6 +3,7 @@ module kconsole
 go 1.19
 
 require (
+	github.com/carlmjohnson/requests v0.22.3
 	github.com/manifoldco/promptui v0.9.0
 	github.com/pingcap/errors v0.11.4
 	github.com/pterm/pterm v0.12.60

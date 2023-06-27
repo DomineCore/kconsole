@@ -47,7 +47,6 @@ func InitConfig() {
 	errorx.CheckErrorWithCode(err, errorx.ErrorConfigErr)
 	err = viper.Unmarshal(kconsoleConfig)
 	errorx.CheckErrorWithCode(err, errorx.ErrorConfigErr)
-	fmt.Println(kconsoleConfig)
 	// validate the configuration
 	kconsoleConfig.validate()
 }
