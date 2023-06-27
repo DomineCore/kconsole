@@ -26,8 +26,9 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
+	"kconsole/config"
 	"kconsole/utils/errorx"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -74,6 +75,7 @@ func PrintLogo() string {
 // kube utils
 // ----
 
+// defaultKubeConfig used to configure the kubeclient by ~/.kube/config
 func defaultKubeConfig() *rest.Config {
 	home, err := os.UserHomeDir()
 	errorx.CheckError(err)
@@ -88,11 +90,35 @@ func defaultKubeConfig() *rest.Config {
 	return config
 }
 
+// newKubeConfigForToken
+func newKubeConfigForToken(token string, host string) *rest.Config {
+	config := &rest.Config{
+		Host:        host,
+		BearerToken: token,
+	}
+	return config
+}
+
+// newBcsConfig
+func newBcsConfig(clusterid string) *rest.Config {
+	kconsoleConfig := config.GetKconsoleConfig()
+	return newKubeConfigForToken(
+		fmt.Sprintf("%s/clusters/%s", kconsoleConfig.BCSHost, clusterid),
+		kconsoleConfig.BCSToken,
+	)
+}
+
+func bcsClientSet(clusterid string) *kubernetes.Clientset {
+	config := newBcsConfig(clusterid)
+	clientset, err := kubernetes.NewForConfig(config)
+	errorx.CheckError(err)
+	return clientset
+}
+
 func defaulClientSet() *kubernetes.Clientset {
 	config := defaultKubeConfig()
 	clientset, err := kubernetes.NewForConfig(config)
 	errorx.CheckError(err)
-
 	return clientset
 }
 
