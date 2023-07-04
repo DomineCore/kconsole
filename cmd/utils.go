@@ -23,13 +23,13 @@ package cmd
 
 import (
 	"archive/tar"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"kconsole/config"
 	"kconsole/utils/bcs"
 	"kconsole/utils/errorx"
-	"log"
 	"net/http"
 	"os"
 	"path"
@@ -40,6 +40,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/pingcap/errors"
 	"github.com/pterm/pterm"
+	log "github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
 	k8serror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -249,6 +250,25 @@ func InputUI(title string, prefix string, defaultStr string) string {
 		panic(err.Error())
 	}
 	return result
+}
+
+// SelectPodNs select a podname & namespace
+func SelectPodNs() (pod, ns string) {
+	pods := ListAllPods()
+	selectpod := SelectUI(pods, "select a pod")
+	// pod: namespace/podname
+	namespace_pod := strings.Split(selectpod, "/")
+	ns = namespace_pod[0]
+	pod = namespace_pod[1]
+	return
+}
+
+// SelectContainer select a cnotainer from pod->container
+func SelectContainer() (pod, ns, container string) {
+	pod, ns = SelectPodNs()
+	containers := ListContainersByPod(ns, pod)
+	container = SelectUI(containers, "select a container")
+	return
 }
 
 // ---
@@ -538,5 +558,21 @@ func recursiveTar(srcBase, srcFile, destBase, destFile string, tw *tar.Writer) e
 			return f.Close()
 		}
 	}
+	return nil
+}
+
+// PrintLogs print container's logs to stdout
+func PrintLogs(namespace, podname, container string, lines int64) error {
+	clientset := getClientSet()
+	ctx := context.Background()
+	resp := clientset.CoreV1().Pods(namespace).GetLogs(podname, &v1.PodLogOptions{
+		TailLines: &lines,
+		Container: container,
+	})
+	lr, err := resp.Stream(ctx)
+	errorx.CheckError(err)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(lr)
+	log.Print(buf.String())
 	return nil
 }

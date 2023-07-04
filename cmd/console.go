@@ -22,8 +22,6 @@
 package cmd
 
 import (
-	"strings"
-
 	"github.com/spf13/cobra"
 )
 
@@ -46,16 +44,7 @@ func (cl *ConsoleCmd) Init() {
 }
 
 func (cl ConsoleCmd) runConsole(cmd *cobra.Command, args []string) error {
-	// call utils get pods
-	pods := ListAllPods()
-	selectpod := SelectUI(pods, "select a pod")
-	// pod: namespace/podname
-	namespace_pod := strings.Split(selectpod, "/")
-	namespace := namespace_pod[0]
-	podname := namespace_pod[1]
-	// call utils get container
-	containers := ListContainersByPod(namespace, podname)
-	selectcontainer := SelectUI(containers, "select a container")
+	podname, namespace, selectcontainer := SelectContainer()
 	// select command
 	selectcmd := SelectUI(CMDS, "select a cmd")
 	// build exec real command

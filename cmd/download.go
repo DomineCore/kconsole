@@ -22,8 +22,6 @@
 package cmd
 
 import (
-	"strings"
-
 	"github.com/spf13/cobra"
 )
 
@@ -37,23 +35,15 @@ func (cl *DownloadCmd) Init() {
 		Short: "Copy files from container to local",
 		Long:  "Copy files from container to local",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return cl.runCluster(cmd, args)
+			return cl.runDownload(cmd, args)
 		},
 	}
 	cl.command.DisableFlagsInUseLine = true
 }
 
-func (cl DownloadCmd) runCluster(cmd *cobra.Command, args []string) error {
+func (cl DownloadCmd) runDownload(cmd *cobra.Command, args []string) error {
 	// call utils get pods
-	pods := ListAllPods()
-	selectpod := SelectUI(pods, "select a pod")
-	// pod: namespace/podname
-	namespace_pod := strings.Split(selectpod, "/")
-	namespace := namespace_pod[0]
-	podname := namespace_pod[1]
-	// call utils get container
-	containers := ListContainersByPod(namespace, podname)
-	selectcontainer := SelectUI(containers, "select a container")
+	podname, namespace, selectcontainer := SelectContainer()
 	// input file
 	inputsourcecmd := InputUI("input container source file path", "/", "")
 	// input file

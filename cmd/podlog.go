@@ -22,45 +22,33 @@
 package cmd
 
 import (
-	"os"
+	"kconsole/utils/errorx"
 
 	"github.com/spf13/cobra"
 )
 
-var (
-	uiSize    int
-	macNotify bool
-)
-
-var (
-	flagLines = "lines"
-)
-
-type Cli struct {
-	rootCmd *cobra.Command
+type LogCmd struct {
+	BaseCommand
 }
 
-func NewCli() *Cli {
-	cli := &Cli{
-		rootCmd: &cobra.Command{
-			Use:   "kconsole",
-			Short: "container terminal manager.",
-			Long:  PrintLogo(),
+func (cl *LogCmd) Init() {
+	cl.command = &cobra.Command{
+		Use:   "log",
+		Short: "show pod's log for a container incluster.",
+		Long:  "show pod's log for a container incluster. Only the latest 150 lines.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cl.runConsole(cmd, args)
 		},
 	}
-	cli.rootCmd.SetOut(os.Stdout)
-	cli.rootCmd.SetErr(os.Stderr)
-	cli.setFlags()
-	cli.rootCmd.DisableAutoGenTag = true
-	return cli
+	cl.command.DisableFlagsInUseLine = true
 }
 
-func (cli *Cli) setFlags() {
-	flags := cli.rootCmd.PersistentFlags()
-	flags.Int64(flagLines, 150, "Number of lines to print logs.")
-}
-
-// Run command
-func (cli *Cli) Run() error {
-	return cli.rootCmd.Execute()
+func (cl LogCmd) runConsole(cmd *cobra.Command, args []string) error {
+	// call utils get pods
+	podname, namespace, selectcontainer := SelectContainer()
+	// build exec real command
+	lines, err := cmd.Flags().GetInt64(flagLines)
+	errorx.CheckError(err)
+	err = PrintLogs(namespace, podname, selectcontainer, lines)
+	return err
 }
