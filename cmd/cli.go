@@ -28,11 +28,6 @@ import (
 )
 
 var (
-	uiSize    int
-	macNotify bool
-)
-
-var (
 	flagLines = "lines"
 )
 
