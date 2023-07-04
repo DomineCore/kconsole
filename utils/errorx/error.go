@@ -23,6 +23,7 @@
 package errorx
 
 import (
+	"errors"
 	"os"
 	"runtime/debug"
 
@@ -51,6 +52,17 @@ func CheckError(err error) {
 	if err != nil {
 		debug.PrintStack()
 		Fatal(ErrorUnknow, err)
+	}
+}
+
+// CheckError if error is not nil, call fatal.
+func CheckErrorWithIgnore(err error, ignores []error) {
+	for _, ignore := range ignores {
+		if errors.Is(err, ignore) {
+			continue
+		} else {
+			CheckError(err)
+		}
 	}
 }
 

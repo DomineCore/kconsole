@@ -571,8 +571,13 @@ func PrintLogs(namespace, podname, container string, lines int64) error {
 	})
 	lr, err := resp.Stream(ctx)
 	errorx.CheckError(err)
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(lr)
-	log.Print(buf.String())
+	printBuffer(lr)
 	return nil
+}
+
+func printBuffer(data io.ReadCloser) {
+	buf := new(bytes.Buffer)
+	_, err := buf.ReadFrom(data)
+	errorx.CheckErrorWithIgnore(err, []error{io.EOF})
+	log.Print(buf.String())
 }
