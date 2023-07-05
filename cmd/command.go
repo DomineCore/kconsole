@@ -55,5 +55,6 @@ func NewBaseCommand() *BaseCommand {
 	baseCmd.AddCommands(&ConsoleCmd{})
 	baseCmd.AddCommands(&DownloadCmd{})
 	baseCmd.AddCommands(&UploadCmd{})
+	baseCmd.AddCommands(&LogCmd{})
 	return baseCmd
 }

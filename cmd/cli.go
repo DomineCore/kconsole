@@ -28,8 +28,7 @@ import (
 )
 
 var (
-	uiSize    int
-	macNotify bool
+	flagLines = "lines"
 )
 
 type Cli struct {
@@ -53,8 +52,7 @@ func NewCli() *Cli {
 
 func (cli *Cli) setFlags() {
 	flags := cli.rootCmd.PersistentFlags()
-	flags.IntVar(&uiSize, "ui-size", 4, "number of list items to show in menu at once")
-	flags.BoolVarP(&macNotify, "mac-notify", "m", false, "enable to display Mac notification banner")
+	flags.Int64(flagLines, 150, "Number of lines to print logs.")
 }
 
 // Run command

@@ -22,8 +22,6 @@
 package cmd
 
 import (
-	"strings"
-
 	"github.com/spf13/cobra"
 )
 
@@ -37,23 +35,15 @@ func (cl *UploadCmd) Init() {
 		Short: "Copy files locally to remote",
 		Long:  "Copy files locally to remote",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return cl.runCluster(cmd, args)
+			return cl.runUpload(cmd, args)
 		},
 	}
 	cl.command.DisableFlagsInUseLine = true
 }
 
-func (cl UploadCmd) runCluster(cmd *cobra.Command, args []string) error {
+func (cl UploadCmd) runUpload(cmd *cobra.Command, args []string) error {
 	// call utils get pods
-	pods := ListAllPods()
-	selectpod := SelectUI(pods, "select a pod")
-	// pod: namespace/podname
-	namespace_pod := strings.Split(selectpod, "/")
-	namespace := namespace_pod[0]
-	podname := namespace_pod[1]
-	// call utils get container
-	containers := ListContainersByPod(namespace, podname)
-	selectcontainer := SelectUI(containers, "select a container")
+	podname, namespace, selectcontainer := SelectContainer()
 	// input src file
 	inputsourcecmd := InputUI("input local source file path", "local", "")
 	// input dest file

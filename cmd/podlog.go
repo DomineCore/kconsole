@@ -22,33 +22,33 @@
 package cmd
 
 import (
+	"kconsole/utils/errorx"
+
 	"github.com/spf13/cobra"
 )
 
-type DownloadCmd struct {
+type LogCmd struct {
 	BaseCommand
 }
 
-func (cl *DownloadCmd) Init() {
+func (cl *LogCmd) Init() {
 	cl.command = &cobra.Command{
-		Use:   "download",
-		Short: "Copy files from container to local",
-		Long:  "Copy files from container to local",
+		Use:   "log",
+		Short: "show pod's log for a container incluster.",
+		Long:  "show pod's log for a container incluster. Only the latest 150 lines.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return cl.runDownload(cmd, args)
+			return cl.runConsole(cmd, args)
 		},
 	}
 	cl.command.DisableFlagsInUseLine = true
 }
 
-func (cl DownloadCmd) runDownload(cmd *cobra.Command, args []string) error {
+func (cl LogCmd) runConsole(cmd *cobra.Command, args []string) error {
 	// call utils get pods
 	podname, namespace, selectcontainer := SelectContainer()
-	// input file
-	inputsourcecmd := InputUI("input container source file path", "/", "")
-	// input file
-	inputdestcmd := InputUI("input container source file path", "local", "./")
 	// build exec real command
-	err := copyFromPod(namespace, podname, selectcontainer, inputsourcecmd, inputdestcmd)
+	lines, err := cmd.Flags().GetInt64(flagLines)
+	errorx.CheckError(err)
+	err = PrintLogs(namespace, podname, selectcontainer, lines)
 	return err
 }
