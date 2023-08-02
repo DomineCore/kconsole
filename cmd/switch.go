@@ -21,43 +21,43 @@
 // SOFTWARE.
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
+	"kconsole/config"
+	"kconsole/utils/errorx"
 
-type Command interface {
-	Init()
-	CobraCmd() *cobra.Command
+	"github.com/spf13/cobra"
+)
+
+type SwitchCmd struct {
+	BaseCommand
 }
 
-type BaseCommand struct {
-	command *cobra.Command
+func (cl *SwitchCmd) Init() {
+	cl.command = &cobra.Command{
+		Use:   "switch",
+		Short: "Select a cluster.",
+		Long:  "Select a cluster.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cl.runSwitch(cmd, args)
+		},
+	}
+	cl.command.DisableFlagsInUseLine = true
 }
 
-func (bc BaseCommand) Init() {
-}
-
-func (bc BaseCommand) CobraCmd() *cobra.Command {
-	return bc.command
-}
-
-func (bc *BaseCommand) AddCommands(children ...Command) {
-	for _, child := range children {
-		child.Init()
-		childCmd := child.CobraCmd()
-		bc.CobraCmd().AddCommand(childCmd)
+func (cl *SwitchCmd) validate(args []string) {
+	if config.GetKconsoleConfig().Auth != config.BcsAuth {
+		errorx.CheckErrorWithCode(fmt.Errorf("the switch command must be used when auth=bcsauth. Run the login command first, for example, 'kconsole login --mode bcs --host xxx --token xxx'."), errorx.ErrorArgsErr)
 	}
 }
 
-func NewBaseCommand() *BaseCommand {
-	cli := NewCli()
-	baseCmd := &BaseCommand{
-		command: cli.rootCmd,
+func (cl *SwitchCmd) runSwitch(cmd *cobra.Command, args []string) error {
+	cl.validate(args)
+	switch config.GetKconsoleConfig().Auth {
+	case config.BcsAuth:
+		clusterid := selectBCSCluster()
+		config.UpdateConfilefile(map[string]string{"bcscluster": clusterid})
+		fmt.Println("checkout cluster: ", clusterid, "~")
 	}
-	baseCmd.AddCommands(&ConsoleCmd{})
-	baseCmd.AddCommands(&DownloadCmd{})
-	baseCmd.AddCommands(&UploadCmd{})
-	baseCmd.AddCommands(&LogCmd{})
-	baseCmd.AddCommands(&LoginCmd{})
-	baseCmd.AddCommands(&SwitchCmd{})
-	baseCmd.AddCommands(&LogDownCmd{})
-	return baseCmd
+	return nil
 }

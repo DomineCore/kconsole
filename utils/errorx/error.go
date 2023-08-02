@@ -43,6 +43,7 @@ const (
 	ErrorGetBCSUserProjErr = 4
 	// ErrorGetBCSUserProj get bcs cluster proj unknown error
 	ErrorGetBCSUserClusterErr = 5
+	ErrorArgsErr              = 6
 	// ErrorUnknow Unexpected error, need to contact the developer
 	ErrorUnknow = 20
 )
