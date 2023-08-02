@@ -21,43 +21,43 @@
 // SOFTWARE.
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
+	"kconsole/utils/errorx"
 
-type Command interface {
-	Init()
-	CobraCmd() *cobra.Command
+	"github.com/spf13/cobra"
+)
+
+type LogDownCmd struct {
+	BaseCommand
 }
 
-type BaseCommand struct {
-	command *cobra.Command
-}
-
-func (bc BaseCommand) Init() {
-}
-
-func (bc BaseCommand) CobraCmd() *cobra.Command {
-	return bc.command
-}
-
-func (bc *BaseCommand) AddCommands(children ...Command) {
-	for _, child := range children {
-		child.Init()
-		childCmd := child.CobraCmd()
-		bc.CobraCmd().AddCommand(childCmd)
+func (cl *LogDownCmd) Init() {
+	cl.command = &cobra.Command{
+		Use:   "logdown",
+		Short: "download pod's log for a container incluster.",
+		Long:  "download pod's log for a container incluster. Only the latest 150 lines.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cl.runLogDown(cmd, args)
+		},
 	}
+	cl.command.DisableFlagsInUseLine = true
 }
 
-func NewBaseCommand() *BaseCommand {
-	cli := NewCli()
-	baseCmd := &BaseCommand{
-		command: cli.rootCmd,
+func (cl LogDownCmd) validateArgs(args []string) (downFilename string) {
+	if len(args) < 1 {
+		errorx.CheckErrorWithCode(fmt.Errorf("provide at least one file name for storing logs."), errorx.ErrorArgsErr)
 	}
-	baseCmd.AddCommands(&ConsoleCmd{})
-	baseCmd.AddCommands(&DownloadCmd{})
-	baseCmd.AddCommands(&UploadCmd{})
-	baseCmd.AddCommands(&LogCmd{})
-	baseCmd.AddCommands(&LoginCmd{})
-	baseCmd.AddCommands(&SwitchCmd{})
-	baseCmd.AddCommands(&LogDownCmd{})
-	return baseCmd
+	downFilename = args[0]
+	return
+}
+
+func (cl LogDownCmd) runLogDown(cmd *cobra.Command, args []string) error {
+	// validate args logfilename
+	// call utils get pods
+	downFilename := cl.validateArgs(args)
+	podname, namespace, selectcontainer := SelectContainer()
+	// build exec real command
+	err := SaveLogs(namespace, podname, selectcontainer, downFilename)
+	return err
 }

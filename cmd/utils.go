@@ -136,7 +136,8 @@ func getClientSet() *kubernetes.Clientset {
 			clientSet = defaulClientSet()
 		case config.BcsAuth:
 			// select cluster
-			clusterid := selectBCSCluster()
+			clusterid := config.GetKconsoleConfig().BCSCluster
+			// clusterid := selectBCSCluster()
 			clientSet = bcsClientSet(clusterid)
 		}
 	})
@@ -189,7 +190,7 @@ func ListAllPods() []string {
 	pods := allPodList()
 	var podNames []string
 	for _, pod := range pods.Items {
-		podNames = append(podNames, fmt.Sprintf("%s/%s", pod.Namespace, pod.Name))
+		podNames = append(podNames, fmt.Sprintf("%s#%s", pod.Namespace, pod.Name))
 	}
 	return podNames
 }
@@ -257,7 +258,7 @@ func SelectPodNs() (pod, ns string) {
 	pods := ListAllPods()
 	selectpod := SelectUI(pods, "select a pod")
 	// pod: namespace/podname
-	namespace_pod := strings.Split(selectpod, "/")
+	namespace_pod := strings.Split(selectpod, "#")
 	ns = namespace_pod[0]
 	pod = namespace_pod[1]
 	return
@@ -561,17 +562,33 @@ func recursiveTar(srcBase, srcFile, destBase, destFile string, tw *tar.Writer) e
 	return nil
 }
 
-// PrintLogs print container's logs to stdout
-func PrintLogs(namespace, podname, container string, lines int64) error {
+func getLog(namespace, podname, container string, lines int64) (io.ReadCloser, error) {
 	clientset := getClientSet()
 	ctx := context.Background()
-	resp := clientset.CoreV1().Pods(namespace).GetLogs(podname, &v1.PodLogOptions{
-		TailLines: &lines,
+	opts := &v1.PodLogOptions{
 		Container: container,
-	})
+	}
+	if lines != -1 {
+		opts.TailLines = &lines
+	}
+	resp := clientset.CoreV1().Pods(namespace).GetLogs(podname, opts)
 	lr, err := resp.Stream(ctx)
+	return lr, err
+}
+
+// PrintLogs print container's logs to stdout
+func PrintLogs(namespace, podname, container string, lines int64) error {
+	lr, err := getLog(namespace, podname, container, lines)
 	errorx.CheckError(err)
 	printBuffer(lr)
+	return nil
+}
+
+// SaveLogs save container's logs to files
+func SaveLogs(namespace, podname, container string, filename string) error {
+	lr, err := getLog(namespace, podname, container, -1)
+	errorx.CheckError(err)
+	saveBuffer2file(lr, filename)
 	return nil
 }
 
@@ -580,4 +597,14 @@ func printBuffer(data io.ReadCloser) {
 	_, err := buf.ReadFrom(data)
 	errorx.CheckErrorWithIgnore(err, []error{io.EOF})
 	log.Print(buf.String())
+}
+
+func saveBuffer2file(data io.ReadCloser, filename string) {
+	buf := new(bytes.Buffer)
+	_, err := buf.ReadFrom(data)
+	errorx.CheckErrorWithIgnore(err, []error{io.EOF})
+	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0600)
+	errorx.CheckError(err)
+	_, err = f.Write(buf.Bytes())
+	errorx.CheckError(err)
 }

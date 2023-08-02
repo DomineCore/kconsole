@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"kconsole/config"
+	"kconsole/utils/errorx"
 	"net/http"
 
 	"github.com/carlmjohnson/requests"
@@ -76,4 +77,11 @@ func userToken() string {
 func bcsHost() string {
 	c := config.GetKconsoleConfig()
 	return c.BCSHost
+}
+
+func PingBCSOrdie(ctx context.Context) {
+	_, err := UserBCSProjects(ctx)
+	if err != nil {
+		errorx.CheckError(fmt.Errorf("ping bcs error, please relogin or Contact Developer: %v", err))
+	}
 }

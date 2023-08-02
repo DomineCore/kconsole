@@ -25,13 +25,12 @@ package main
 import (
 	"fmt"
 	"kconsole/cmd"
-	"kconsole/config"
 	"os"
 )
 
-func init() {
-	config.GetKconsoleConfig()
-}
+// func init() {
+// 	config.GetKconsoleConfig()
+// }
 
 func main() {
 	baseCommand := cmd.NewBaseCommand()
