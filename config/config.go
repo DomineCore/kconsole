@@ -70,7 +70,7 @@ func getViper() viper.Viper {
 func mkCongfigfile(v *viper.Viper) {
 	f, err := os.Create(getConfigpath())
 	if _, ok := err.(*os.PathError); ok {
-		os.Mkdir(getConfigDir(), 0755)
+		errorx.CheckError(os.Mkdir(getConfigDir(), 0755))
 		f, err := os.Create(getConfigpath())
 		errorx.CheckError(err)
 		f.Close()
