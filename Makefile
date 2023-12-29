@@ -1,5 +1,5 @@
 .PHONY: build clean
-
+123
 # get tag of kconsole
 kconsole_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)
 TAG=$(kconsole_VERSION)
